@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cupertino_desktop_kit/cdk.dart';
 import 'app_click_selector.dart';
 import 'app_data_actions.dart';
 import 'util_shape.dart';
@@ -13,12 +14,18 @@ class AppData with ChangeNotifier {
   double zoom = 95;
   Size docSize = const Size(500, 400);
   String toolSelected = "shape_drawing";
-  Shape newShape = Shape();
+  Shape newShape = Shape(); //shapesList
+  double strokeWeight = 1;
   List<Shape> shapesList = [];
   int shapeSelected = -1;
+  bool recuadre = false;
+  Color backgroundColor = CDKTheme.transparent;
 
-  bool readyExample = false;
-  late dynamic dataExample;
+  List<double> recuadreP = [];
+
+  Color strokeColor = CDKTheme.black;
+
+  int shapeSelectedPrevious = -1;
 
   void forceNotifyListeners() {
     super.notifyListeners();
@@ -82,8 +89,10 @@ class AppData with ChangeNotifier {
   }
 
   void addNewShape(Offset position) {
+    newShape = Shape();
     newShape.setPosition(position);
     newShape.addPoint(const Offset(0, 0));
+    newShape.setInitialPosition(newShape.position);
     notifyListeners();
   }
 
@@ -95,15 +104,67 @@ class AppData with ChangeNotifier {
   void addNewShapeToShapesList() {
     // Si no hi ha almenys 2 punts, no es podrà dibuixar res
     if (newShape.vertices.length >= 2) {
-      double strokeWidthConfig = newShape.strokeWidth;
-      actionManager.register(ActionAddNewShape(this, newShape));
+      newShape.setStrokeColor(strokeColor);
+      newShape.setStrokeWidth(strokeWeight);
+      shapesList.add(newShape);
       newShape = Shape();
-      newShape.setStrokeWidth(strokeWidthConfig);
+      notifyListeners();
     }
   }
 
   void setNewShapeStrokeWidth(double value) {
     newShape.setStrokeWidth(value);
+    strokeWeight = value;
     notifyListeners();
+  }
+
+  void setBackgroundColor(Color color) {
+    backgroundColor = color;
+    notifyListeners();
+  }
+
+  void setStrokeColor(Color color) {
+    newShape.setStrokeColor(color);
+    strokeColor = color;
+    notifyListeners();
+  }
+
+  void getRecuadre(Shape shape) {
+    if (shapesList.contains(shape)) {
+      double minX = double.infinity;
+      double minY = double.infinity;
+      double maxX = 0;
+      double maxY = 0;
+
+      // Encuentra las coordenadas extremas del rectángulo que rodea a la forma
+      for (Offset vertex in shape.vertices) {
+        double x = vertex.dx + shape.position.dx;
+        double y = vertex.dy + shape.position.dy;
+
+        // Se actualiza minX con el valor mínimo entre x y el valor actual de minX.
+        minX = x < minX ? x : minX;
+
+        // Se actualiza minY con el valor mínimo entre y y el valor actual de minY.
+        minY = y < minY ? y : minY;
+
+        // Se actualiza maxX con el valor máximo entre x y el valor actual de maxX.
+        maxX = x > maxX ? x : maxX;
+
+        // Se actualiza maxY con el valor máximo entre y y el valor actual de maxY.
+        maxY = y > maxY ? y : maxY;
+      }
+
+      // Añade el grosor del trazo para asegurar que el rectángulo lo rodea completamente
+      minX -= shape.strokeWidth / 2;
+      minY -= shape.strokeWidth / 2;
+      maxX += shape.strokeWidth / 2;
+      maxY += shape.strokeWidth / 2;
+
+      print([minX, maxX, minY, maxY]);
+
+      recuadreP.clear();
+      recuadreP.addAll([minX, maxX, minY, maxY]);
+      notifyListeners();
+    }
   }
 }

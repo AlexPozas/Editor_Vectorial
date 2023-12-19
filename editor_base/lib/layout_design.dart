@@ -46,17 +46,30 @@ class LayoutDesignState extends State<LayoutDesign> {
   }
 
   // Retorna la posició x,y al document, respecte on s'ha fet click
-  Offset _getDocPosition(Offset position, double zoom,
-      BoxConstraints constraints, Size docSize, Offset center) {
+  Offset getDocumentPosition(
+    Offset position,
+    double zoom,
+    double viewportWidth,
+    double viewportHeight,
+    double documentWidth,
+    double documentHeight,
+    double centerX,
+    double centerY,
+  ) {
+    // Calcula la escala relativa al zoom proporcionado
     double scale = zoom / 100;
+
+    // Calcula las transformaciones de traslación para centrar el documento en el viewport
     double translateX =
-        (constraints.maxWidth / (2 * scale)) - (docSize.width / 2) - center.dx;
-    double translateY = (constraints.maxHeight / (2 * scale)) -
-        (docSize.height / 2) -
-        center.dy;
+        (viewportWidth / (2 * scale)) - (documentWidth / 2) - centerX;
+    double translateY =
+        (viewportHeight / (2 * scale)) - (documentHeight / 2) - centerY;
+
+    // Aplica las transformaciones inversas para obtener la posición original en el documento
     double originalX = (position.dx / scale) - translateX;
     double originalY = (position.dy / scale) - translateY;
 
+    // Devuelve la posición original en el documento
     return Offset(originalX, originalY);
   }
 
@@ -131,23 +144,36 @@ class LayoutDesignState extends State<LayoutDesign> {
               child: MouseRegion(
                   cursor: cursorShown,
                   child: Listener(
-                      onPointerDown: (event) {
+                      onPointerDown: (event) async {
                         _focusNode.requestFocus();
                         _isMouseButtonPressed = true;
                         Size docSize =
                             Size(appData.docSize.width, appData.docSize.height);
-                        Offset docPosition = _getDocPosition(
+                        Offset docPosition = getDocumentPosition(
                             event.localPosition,
                             appData.zoom,
-                            constraints,
-                            docSize,
-                            _scrollCenter);
+                            constraints.maxWidth,
+                            constraints.maxHeight,
+                            docSize.width,
+                            docSize.height,
+                            _scrollCenter.dx,
+                            _scrollCenter.dy);
                         if (appData.toolSelected == "pointer_shapes") {
                           appData.selectShapeAtPosition(docPosition,
                               event.localPosition, constraints, _scrollCenter);
                         }
                         if (appData.toolSelected == "shape_drawing") {
-                          appData.addNewShape(docPosition);
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          appData.addNewShape(getDocumentPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                              docSize.width,
+                              docSize.height,
+                              _scrollCenter.dx,
+                              _scrollCenter.dy));
                         }
                         setState(() {});
                       },
@@ -156,12 +182,16 @@ class LayoutDesignState extends State<LayoutDesign> {
                           if (appData.toolSelected == "shape_drawing") {
                             Size docSize = Size(
                                 appData.docSize.width, appData.docSize.height);
-                            appData.addRelativePointToNewShape(_getDocPosition(
-                                event.localPosition,
-                                appData.zoom,
-                                constraints,
-                                docSize,
-                                _scrollCenter));
+                            appData.addRelativePointToNewShape(
+                                getDocumentPosition(
+                                    event.localPosition,
+                                    appData.zoom,
+                                    constraints.maxWidth,
+                                    constraints.maxHeight,
+                                    docSize.width,
+                                    docSize.height,
+                                    _scrollCenter.dx,
+                                    _scrollCenter.dy));
                           }
                         }
                         if (_isMouseButtonPressed &&

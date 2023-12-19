@@ -18,6 +18,10 @@ class LayoutSidebarDocumentState extends State<LayoutSidebarDocument> {
     TextStyle fontBold =
         const TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
     TextStyle font = const TextStyle(fontSize: 12, fontWeight: FontWeight.w400);
+    final GlobalKey<CDKDialogPopoverArrowedState> DialogKey = GlobalKey();
+    GlobalKey<CDKButtonColorState> backgroundKey =
+        GlobalKey<CDKButtonColorState>();
+    ValueNotifier<Color> _valueColorNotifier = ValueNotifier(CDKTheme.black);
 
     return Container(
       padding: const EdgeInsets.all(4.0),
@@ -84,6 +88,35 @@ class LayoutSidebarDocumentState extends State<LayoutSidebarDocument> {
                         width: labelsWidth,
                         child: Text("Background color:", style: font)),
                     const SizedBox(width: 4),
+                    ValueListenableBuilder<Color>(
+                        valueListenable: _valueColorNotifier,
+                        builder: (context, value, child) {
+                          return CDKButtonColor(
+                              key: backgroundKey,
+                              color: appData.backgroundColor,
+                              onPressed: () {
+                                CDKDialogsManager.showPopoverArrowed(
+                                    key: DialogKey,
+                                    context: context,
+                                    anchorKey: backgroundKey,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ValueListenableBuilder<Color>(
+                                        valueListenable: _valueColorNotifier,
+                                        builder: (context, value, child) {
+                                          return CDKPickerColor(
+                                            color: value,
+                                            onChanged: (color) {
+                                              _valueColorNotifier.value = color;
+                                              appData.setBackgroundColor(
+                                                  _valueColorNotifier.value);
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ));
+                              });
+                        })
                   ],
                 ),
                 const SizedBox(height: 16),

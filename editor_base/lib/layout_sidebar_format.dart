@@ -18,6 +18,10 @@ class LayoutSidebarFormatState extends State<LayoutSidebarFormat> {
     TextStyle fontBold =
         const TextStyle(fontSize: 12, fontWeight: FontWeight.bold);
     TextStyle font = const TextStyle(fontSize: 12, fontWeight: FontWeight.w400);
+    final GlobalKey<CDKDialogPopoverArrowedState> DialogKey = GlobalKey();
+    GlobalKey<CDKButtonColorState> strokedKey =
+        GlobalKey<CDKButtonColorState>();
+    ValueNotifier<Color> _valueColorNotifier = ValueNotifier(CDKTheme.black);
 
     return Container(
       padding: const EdgeInsets.all(4.0),
@@ -39,7 +43,7 @@ class LayoutSidebarFormatState extends State<LayoutSidebarFormat> {
                       alignment: Alignment.centerLeft,
                       width: 80,
                       child: CDKFieldNumeric(
-                        value: appData.newShape.strokeWidth,
+                        value: appData.strokeWeight,
                         min: 0.01,
                         max: 100,
                         units: "px",
@@ -59,6 +63,33 @@ class LayoutSidebarFormatState extends State<LayoutSidebarFormat> {
                         width: labelsWidth,
                         child: Text("Stroke color:", style: font)),
                     const SizedBox(width: 4),
+                    ValueListenableBuilder<Color>(
+                        valueListenable: _valueColorNotifier,
+                        builder: (context, value, child) {
+                          return CDKButtonColor(
+                              key: strokedKey,
+                              color: appData.strokeColor,
+                              onPressed: () {
+                                CDKDialogsManager.showPopoverArrowed(
+                                    key: DialogKey,
+                                    context: context,
+                                    anchorKey: strokedKey,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: ValueListenableBuilder<Color>(
+                                        valueListenable: _valueColorNotifier,
+                                        builder: (context, value, child) {
+                                          return CDKPickerColor(
+                                            color: value,
+                                            onChanged: (color) {
+                                              appData.setStrokeColor(color);
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ));
+                              });
+                        })
                   ],
                 ),
                 const SizedBox(height: 16),

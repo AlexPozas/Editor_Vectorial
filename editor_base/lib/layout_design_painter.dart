@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_cupertino_desktop_kit/cdk.dart';
+import 'package:provider/provider.dart';
 import 'app_data.dart';
 import 'util_shape.dart';
 
@@ -149,7 +150,7 @@ class LayoutDesignPainter extends CustomPainter {
   static void paintShape(Canvas canvas, Shape shape) {
     if (shape.vertices.isNotEmpty) {
       Paint paint = Paint();
-      paint.color = CDKTheme.black;
+      paint.color = shape.strokeColor;
       paint.style = PaintingStyle.stroke;
       paint.strokeWidth = shape.strokeWidth;
       double x = shape.position.dx + shape.vertices[0].dx;
@@ -161,6 +162,7 @@ class LayoutDesignPainter extends CustomPainter {
         y = shape.position.dy + shape.vertices[i].dy;
         path.lineTo(x, y);
       }
+
       canvas.drawPath(path, paint);
     }
   }
@@ -204,11 +206,14 @@ class LayoutDesignPainter extends CustomPainter {
     }
 
     // Dibuixa el fons del document aquí ...
+    Paint paint = Paint()..color = appData.backgroundColor;
+    canvas.drawRect(Rect.fromLTWH(0, 0, docW, docH), paint);
 
     // Dibuixa la llista de poligons (segons correspon, relatiu a la seva posició)
     if (appData.shapesList.isNotEmpty) {
       for (int i = 0; i < appData.shapesList.length; i++) {
         Shape shape = appData.shapesList[i];
+
         paintShape(canvas, shape);
       }
     }
@@ -216,6 +221,12 @@ class LayoutDesignPainter extends CustomPainter {
     // Dibuixa el poligon que s'està afegint (relatiu a la seva posició)
     Shape shape = appData.newShape;
     paintShape(canvas, shape);
+
+    //Dibuixa el requadre al voltant de la figura
+    if (appData.recuadre && appData.recuadreP.length == 4) {
+      paintRec(canvas, appData.recuadreP[0], appData.recuadreP[1],
+          appData.recuadreP[2], appData.recuadreP[3], CDKTheme.yellow);
+    }
 
     // Restaura l'estat previ a l'escalat i translació
     canvas.restore();
@@ -225,6 +236,24 @@ class LayoutDesignPainter extends CustomPainter {
 
     // Restaura l'estat de retall del canvas
     canvas.restore();
+  }
+
+  //Funcio per pintar el requadre
+  void paintRec(
+      Canvas canvas, double x1, double x2, double y1, double y2, Color color) {
+    Paint paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    Path path = Path()
+      ..moveTo(x1, y1)
+      ..lineTo(x2, y1)
+      ..lineTo(x2, y2)
+      ..lineTo(x1, y2)
+      ..lineTo(x1, y1);
+
+    canvas.drawPath(path, paint);
   }
 
   @override
