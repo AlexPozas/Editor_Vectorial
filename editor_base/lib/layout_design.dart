@@ -161,6 +161,13 @@ class LayoutDesignState extends State<LayoutDesign> {
                         if (appData.toolSelected == "pointer_shapes") {
                           appData.selectShapeAtPosition(docPosition,
                               event.localPosition, constraints, _scrollCenter);
+                          // TASK
+                          if (appData.shapeSelected != -1) {
+                            appData.getRecuadre(
+                                appData.shapesList[appData.shapeSelected]);
+                            appData.recuadre = true;
+                            setState(() {});
+                          }
                         }
                         if (appData.toolSelected == "shape_drawing") {
                           Size docSize = Size(

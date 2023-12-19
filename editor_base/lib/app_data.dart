@@ -79,6 +79,7 @@ class AppData with ChangeNotifier {
 
   void setShapeSelected(int index) {
     shapeSelected = index;
+
     notifyListeners();
   }
 
