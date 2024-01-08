@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_desktop_kit/cdk.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
@@ -166,6 +167,10 @@ class LayoutDesignState extends State<LayoutDesign> {
                             appData.getRecuadre(
                                 appData.shapesList[appData.shapeSelected]);
                             appData.recuadre = true;
+                            appData.setStrokeColor(appData
+                                .shapesList[appData.shapeSelected].strokeColor);
+                            appData.setNewShapeStrokeWidth(appData
+                                .shapesList[appData.shapeSelected].strokeWidth);
                             setState(() {});
                           }
                         }
