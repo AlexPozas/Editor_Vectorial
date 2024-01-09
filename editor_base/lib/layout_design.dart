@@ -21,7 +21,8 @@ class LayoutDesignState extends State<LayoutDesign> {
   Offset _scrollCenter = const Offset(0, 0);
   bool _isMouseButtonPressed = false;
   final FocusNode _focusNode = FocusNode();
-
+  Offset dragStartPosition = Offset.zero;
+  Offset _dragStartOffset = Offset.zero;
   @override
   void initState() {
     super.initState();
@@ -160,10 +161,13 @@ class LayoutDesignState extends State<LayoutDesign> {
                             _scrollCenter.dx,
                             _scrollCenter.dy);
                         if (appData.toolSelected == "pointer_shapes") {
-                          appData.selectShapeAtPosition(docPosition,
+                          await appData.selectShapeAtPosition(docPosition,
                               event.localPosition, constraints, _scrollCenter);
                           // TASK RECUADRE
                           if (appData.shapeSelected != -1) {
+                            dragStartPosition = appData
+                                .shapesList[appData.shapeSelected].position;
+                            _dragStartOffset = docPosition - dragStartPosition;
                             appData.getRecuadre(
                                 appData.shapesList[appData.shapeSelected]);
                             appData.recuadre = true;
@@ -190,6 +194,17 @@ class LayoutDesignState extends State<LayoutDesign> {
                         setState(() {});
                       },
                       onPointerMove: (event) {
+                        Size docSize =
+                            Size(appData.docSize.width, appData.docSize.height);
+                        Offset docPosition = getDocumentPosition(
+                            event.localPosition,
+                            appData.zoom,
+                            constraints.maxWidth,
+                            constraints.maxHeight,
+                            docSize.width,
+                            docSize.height,
+                            _scrollCenter.dx,
+                            _scrollCenter.dy);
                         if (_isMouseButtonPressed) {
                           if (appData.toolSelected == "shape_drawing") {
                             Size docSize = Size(
@@ -206,6 +221,13 @@ class LayoutDesignState extends State<LayoutDesign> {
                                     _scrollCenter.dy));
                           }
                         }
+                        if (appData.toolSelected == "pointer_shapes" &&
+                            appData.shapeSelected != -1) {
+                          Offset newShapePosition =
+                              docPosition - _dragStartOffset;
+                          appData.updateShapePosition(newShapePosition);
+                        }
+
                         if (_isMouseButtonPressed &&
                             appData.toolSelected == "view_grab") {
                           if (event.delta.dx != 0) {
@@ -223,6 +245,26 @@ class LayoutDesignState extends State<LayoutDesign> {
                         if (appData.toolSelected == "shape_drawing") {
                           appData.addNewShapeToShapesList();
                         }
+                        if (appData.toolSelected == "pointer_shapes" &&
+                            appData.shapeSelected != -1) {
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          Offset docPosition = getDocumentPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                              docSize.width,
+                              docSize.height,
+                              _scrollCenter.dx,
+                              _scrollCenter.dy);
+                          Offset newShapePosition =
+                              docPosition - _dragStartOffset;
+                          if (dragStartPosition != newShapePosition) {
+                            appData.setShapePosition(newShapePosition);
+                          }
+                        }
+
                         setState(() {});
                       },
                       onPointerSignal: (pointerSignal) {

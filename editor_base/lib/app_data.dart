@@ -20,7 +20,7 @@ class AppData with ChangeNotifier {
   int shapeSelected = -1;
   bool recuadre = false;
   Color backgroundColor = CDKTheme.transparent;
-
+  Offset mouseToPolygonDifference = Offset.zero;
   List<double> recuadreP = [];
 
   Color strokeColor = CDKTheme.black;
@@ -82,12 +82,6 @@ class AppData with ChangeNotifier {
     notifyListeners();
   }
 
-  void selectShapeAtPosition(Offset docPosition, Offset localPosition,
-      BoxConstraints constraints, Offset center) async {
-    setShapeSelected(await AppClickSelector.selectShapeAtPosition(
-        this, docPosition, localPosition, constraints, center));
-  }
-
   void addNewShape(Offset position) {
     newShape = Shape();
     newShape.setPosition(position);
@@ -127,6 +121,30 @@ class AppData with ChangeNotifier {
     newShape.setStrokeColor(color);
     strokeColor = color;
     notifyListeners();
+  }
+
+  Future<void> selectShapeAtPosition(Offset docPosition, Offset localPosition,
+      BoxConstraints constraints, Offset center) async {
+    shapeSelectedPrevious = shapeSelected;
+    shapeSelected = -1;
+    setShapeSelected(await AppClickSelector.selectShapeAtPosition(
+        this, docPosition, localPosition, constraints, center));
+  }
+
+  void setShapePosition(Offset position) {
+    if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
+      shapesList[shapeSelected].setPosition(position);
+      notifyListeners();
+    }
+  }
+
+  void updateShapePosition(Offset delta) {
+    if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
+      shapesList[shapeSelected].position += delta;
+      notifyListeners();
+    } else {
+      setShapeSelected(0);
+    }
   }
 
   void getRecuadre(Shape shape) {
