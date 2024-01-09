@@ -94,12 +94,16 @@ class ActionAddNewShape implements Action {
   @override
   void undo() {
     appData.shapesList.remove(newShape);
+    print(appData.shapesList);
     appData.forceNotifyListeners();
+    print("Undone");
   }
 
   @override
   void redo() {
     appData.shapesList.add(newShape);
     appData.forceNotifyListeners();
+    print("Redo");
+    print(appData.shapesList);
   }
 }
