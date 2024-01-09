@@ -162,7 +162,7 @@ class LayoutDesignState extends State<LayoutDesign> {
                         if (appData.toolSelected == "pointer_shapes") {
                           appData.selectShapeAtPosition(docPosition,
                               event.localPosition, constraints, _scrollCenter);
-                          // TASK
+                          // TASK RECUADRE
                           if (appData.shapeSelected != -1) {
                             appData.getRecuadre(
                                 appData.shapesList[appData.shapeSelected]);
