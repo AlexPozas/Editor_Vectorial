@@ -226,6 +226,9 @@ class LayoutDesignState extends State<LayoutDesign> {
                           Offset newShapePosition =
                               docPosition - _dragStartOffset;
                           appData.updateShapePosition(newShapePosition);
+                          if (dragStartPosition != newShapePosition) {
+                            appData.setShapePosition(newShapePosition);
+                          }
                         }
 
                         if (_isMouseButtonPressed &&

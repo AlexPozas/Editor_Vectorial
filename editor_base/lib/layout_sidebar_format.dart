@@ -31,6 +31,52 @@ class LayoutSidebarFormatState extends State<LayoutSidebarFormat> {
           return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text("Coordinates:", style: fontBold),
+                const SizedBox(height: 8),
+                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Container(
+                      alignment: Alignment.centerRight,
+                      width: labelsWidth,
+                      child: Text("Offset X", style: font)),
+                  const SizedBox(width: 4),
+                  Container(
+                      alignment: Alignment.centerLeft,
+                      width: 80,
+                      child: CDKFieldNumeric(
+                        value: appData.strokeWeight,
+                        min: 0.01,
+                        max: 100,
+                        units: "px",
+                        increment: 0.5,
+                        decimals: 2,
+                        onValueChanged: (value) {
+                          appData.setNewShapeStrokeWidth(value);
+                        },
+                      )),
+                ]),
+                const SizedBox(height: 8),
+                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Container(
+                      alignment: Alignment.centerRight,
+                      width: labelsWidth,
+                      child: Text("Offset Y", style: font)),
+                  const SizedBox(width: 4),
+                  Container(
+                      alignment: Alignment.centerLeft,
+                      width: 80,
+                      child: CDKFieldNumeric(
+                        value: appData.strokeWeight,
+                        min: 0.01,
+                        max: 100,
+                        units: "px",
+                        increment: 0.5,
+                        decimals: 2,
+                        onValueChanged: (value) {
+                          appData.setNewShapeStrokeWidth(value);
+                        },
+                      )),
+                ]),
+                const SizedBox(height: 16),
                 Text("Stroke and fill:", style: fontBold),
                 const SizedBox(height: 8),
                 Row(mainAxisAlignment: MainAxisAlignment.start, children: [
@@ -83,6 +129,11 @@ class LayoutSidebarFormatState extends State<LayoutSidebarFormat> {
                                             color: value,
                                             onChanged: (color) {
                                               appData.setStrokeColor(color);
+                                              if (appData.shapeSelected != -1) {
+                                                appData.shapesList[
+                                                        appData.shapeSelected]
+                                                    .setStrokeColor(color);
+                                              }
                                             },
                                           );
                                         },

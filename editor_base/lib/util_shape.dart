@@ -13,6 +13,7 @@ class Shape {
 
   void setStrokeColor(Color newColor) {
     strokeColor = newColor;
+    
   }
 
   void setInitialPosition(Offset newIniPosition) {
