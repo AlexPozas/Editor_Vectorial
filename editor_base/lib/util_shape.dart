@@ -6,14 +6,22 @@ class Shape {
   List<Offset> vertices = [];
   double strokeWidth = 1;
   Color strokeColor = CDKTheme.black;
-
+  bool closed = false;
   Offset initialPosition = Offset(0, 0);
+  Color fillColor = CDKTheme.black;
 
   Shape();
 
+  void setFillColor(Color c) {
+    fillColor = c;
+  }
+
+  void setClosed(bool close) {
+    closed = close;
+  }
+
   void setStrokeColor(Color newColor) {
     strokeColor = newColor;
-    
   }
 
   void setInitialPosition(Offset newIniPosition) {
@@ -34,5 +42,14 @@ class Shape {
 
   void setStrokeWidth(double width) {
     strokeWidth = width;
+  }
+
+  void changeAllPropieties(Shape changeTo) {
+    setPosition(changeTo.position);
+    setStrokeColor(changeTo.strokeColor);
+    setStrokeWidth(changeTo.strokeWidth);
+    setInitialPosition(changeTo.initialPosition);
+    vertices.clear();
+    vertices = changeTo.vertices;
   }
 }

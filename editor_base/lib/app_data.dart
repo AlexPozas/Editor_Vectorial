@@ -22,13 +22,21 @@ class AppData with ChangeNotifier {
   Color backgroundColor = CDKTheme.transparent;
   Offset mouseToPolygonDifference = Offset.zero;
   List<double> recuadreP = [];
-
+  bool closeShape = false;
   Color strokeColor = CDKTheme.black;
-
+  Color shapeFillColor = CDKTheme.transparent;
   int shapeSelectedPrevious = -1;
 
   void forceNotifyListeners() {
     super.notifyListeners();
+  }
+
+  void setCloseShape(bool value) {
+    closeShape = value;
+    if (shapeSelected > -1) {
+      shapesList[shapeSelected].closed = value;
+    }
+    notifyListeners();
   }
 
   void setZoom(double value) {
@@ -79,14 +87,26 @@ class AppData with ChangeNotifier {
 
   void setShapeSelected(int index) {
     shapeSelected = index;
+
+    if (index > -1) {
+      newShape.strokeWidth = shapesList[index].strokeWidth;
+      strokeColor = shapesList[index].strokeColor;
+    }
+    notifyListeners();
+  }
+
+  void setFillColor(Color fillcolor) {
+    shapeFillColor = fillcolor;
+    newShape.setFillColor(fillcolor);
     notifyListeners();
   }
 
   void addNewShape(Offset position) {
-    newShape = Shape();
     newShape.setPosition(position);
     newShape.addPoint(const Offset(0, 0));
     newShape.setInitialPosition(newShape.position);
+    newShape.setClosed(closeShape);
+    newShape.setFillColor(shapeFillColor);
     notifyListeners();
   }
 
@@ -101,8 +121,9 @@ class AppData with ChangeNotifier {
       newShape.setStrokeColor(strokeColor);
       newShape.setStrokeWidth(strokeWeight);
       shapesList.add(newShape);
-      newShape = Shape();
+
       actionManager.register(ActionAddNewShape(this, newShape));
+      newShape = Shape();
       notifyListeners();
     }
   }
@@ -124,12 +145,12 @@ class AppData with ChangeNotifier {
     notifyListeners();
   }
 
-  selectShapeAtPosition(Offset docPosition, Offset localPosition,
+  Future<void> selectShapeAtPosition(Offset docPosition, Offset localPosition,
       BoxConstraints constraints, Offset center) async {
     shapeSelectedPrevious = shapeSelected;
     shapeSelected = -1;
 
-    (await AppClickSelector.selectShapeAtPosition(
+    setShapeSelected(await AppClickSelector.selectShapeAtPosition(
         this, docPosition, localPosition, constraints, center));
   }
 
@@ -143,9 +164,10 @@ class AppData with ChangeNotifier {
   void updateShapePosition(Offset delta) {
     if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
       shapesList[shapeSelected].position += delta;
+
       notifyListeners();
     } else {
-      setShapeSelected(0);
+      setShapeSelected(-1);
       notifyListeners();
     }
   }
@@ -180,8 +202,6 @@ class AppData with ChangeNotifier {
       minY -= shape.strokeWidth / 2;
       maxX += shape.strokeWidth / 2;
       maxY += shape.strokeWidth / 2;
-
-      print([minX, maxX, minY, maxY]);
 
       recuadreP.clear();
       recuadreP.addAll([minX, maxX, minY, maxY]);

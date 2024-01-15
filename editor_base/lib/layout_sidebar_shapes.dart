@@ -53,6 +53,7 @@ class LayoutSidebarShapesState extends State<LayoutSidebarShapes> {
                         appData.getRecuadre(appData.shapesList[index]);
                         appData.recuadre = true;
                         appData.shapeSelectedPrevious = index;
+                        appData.shapeSelected = index;
                       });
                     },
                     child: Container(

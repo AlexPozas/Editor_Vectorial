@@ -101,7 +101,6 @@ class ActionAddNewShape implements Action {
 
   @override
   void redo() {
-    appData.shapesList.add(newShape);
     appData.forceNotifyListeners();
     print("Redo");
     print(appData.shapesList);

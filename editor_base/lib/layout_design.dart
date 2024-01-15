@@ -163,6 +163,7 @@ class LayoutDesignState extends State<LayoutDesign> {
                         if (appData.toolSelected == "pointer_shapes") {
                           await appData.selectShapeAtPosition(docPosition,
                               event.localPosition, constraints, _scrollCenter);
+
                           // TASK RECUADRE
                           if (appData.shapeSelected != -1) {
                             dragStartPosition = appData
@@ -228,6 +229,8 @@ class LayoutDesignState extends State<LayoutDesign> {
                           appData.updateShapePosition(newShapePosition);
                           if (dragStartPosition != newShapePosition) {
                             appData.setShapePosition(newShapePosition);
+                            appData.getRecuadre(
+                                appData.shapesList[appData.shapeSelected]);
                           }
                         }
 
