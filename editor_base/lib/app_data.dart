@@ -15,6 +15,7 @@ class AppData with ChangeNotifier {
   Size docSize = const Size(500, 400);
   String toolSelected = "shape_drawing";
   Shape newShape = Shape(); //shapesList
+  Shape removedShape = Shape();
   double strokeWeight = 1;
   List<Shape> shapesList = [];
   int shapeSelected = -1;

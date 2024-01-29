@@ -96,6 +96,7 @@ class ActionAddNewShape implements Action {
     print(appData.recuadreP.length);
     appData.recuadreP.clear();
     appData.shapeSelected = -1;
+    appData.removedShape = newShape;
     appData.shapesList.remove(newShape);
     print(appData.shapesList);
     appData.forceNotifyListeners();
@@ -104,6 +105,7 @@ class ActionAddNewShape implements Action {
 
   @override
   void redo() {
+    appData.shapesList.add(appData.removedShape);
     appData.forceNotifyListeners();
     print("Redo");
     print(appData.shapesList);
