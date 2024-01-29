@@ -21,7 +21,7 @@ class ActionManager {
     }
     actions.add(action);
     currentIndex++;
-    action.redo();
+    //action.redo();
   }
 
   void undo() {
@@ -96,7 +96,7 @@ class ActionAddNewShape implements Action {
     print(appData.recuadreP.length);
     appData.recuadreP.clear();
     appData.shapeSelected = -1;
-    appData.removedShape = newShape;
+    appData.removedShapesList.add(newShape);
     appData.shapesList.remove(newShape);
     print(appData.shapesList);
     appData.forceNotifyListeners();
@@ -105,8 +105,14 @@ class ActionAddNewShape implements Action {
 
   @override
   void redo() {
-    appData.shapesList.add(appData.removedShape);
-    appData.forceNotifyListeners();
+    Shape redoneShape = Shape();
+    if (appData.removedShapesList.length > 0) {
+      redoneShape =
+          appData.removedShapesList[appData.removedShapesList.length - 1];
+      appData.shapesList.add(redoneShape);
+      appData.removedShapesList.remove(redoneShape);
+      appData.forceNotifyListeners();
+    }
     print("Redo");
     print(appData.shapesList);
   }
