@@ -116,7 +116,11 @@ class LayoutDesignState extends State<LayoutDesign> {
         } else {
           cursorShown = SystemMouseCursors.grab;
         }
-      } else if (appData.toolSelected == "shape_drawing") {
+      } else if (appData.toolSelected == "shape_drawing" ||
+          appData.toolSelected == "shape_line" ||
+          appData.toolSelected == "shape_multiline" ||
+          appData.toolSelected == "shape_rectangle" ||
+          appData.toolSelected == "shape_ellipsis") {
         cursorShown = SystemMouseCursors.precise;
       }
 
@@ -178,8 +182,13 @@ class LayoutDesignState extends State<LayoutDesign> {
                                 .shapesList[appData.shapeSelected].strokeWidth);
                             setState(() {});
                           }
+
+                          Offset newShapePosition = docPosition;
+                          appData.shapesList[appData.shapeSelected]
+                              .setInitialPosition(newShapePosition);
                         }
-                        if (appData.toolSelected == "shape_drawing") {
+                        if (appData.toolSelected == "shape_drawing" ||
+                            appData.toolSelected == "shape_line") {
                           Size docSize = Size(
                               appData.docSize.width, appData.docSize.height);
                           appData.addNewShape(getDocumentPosition(
