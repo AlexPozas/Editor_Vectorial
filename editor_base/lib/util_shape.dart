@@ -16,6 +16,10 @@ class Shape {
     fillColor = c;
   }
 
+  List getVertices() {
+    return vertices;
+  }
+
   void setClosed(bool close) {
     closed = close;
   }

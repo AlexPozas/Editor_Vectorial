@@ -28,6 +28,7 @@ class AppData with ChangeNotifier {
   Color strokeColor = CDKTheme.black;
   Color shapeFillColor = CDKTheme.transparent;
   int shapeSelectedPrevious = -1;
+  bool multiclick = false;
 
   void forceNotifyListeners() {
     super.notifyListeners();
@@ -94,6 +95,14 @@ class AppData with ChangeNotifier {
       newShape.strokeWidth = shapesList[index].strokeWidth;
       strokeColor = shapesList[index].strokeColor;
     }
+    notifyListeners();
+  }
+
+  void moveLastVertice(Offset point) {
+    if (newShape.getVertices().length >= 2) {
+      newShape.getVertices().removeLast();
+    }
+    newShape.addRelativePoint(point);
     notifyListeners();
   }
 

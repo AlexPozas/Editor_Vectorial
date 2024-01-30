@@ -204,6 +204,29 @@ class LayoutDesignState extends State<LayoutDesign> {
                               _scrollCenter.dx,
                               _scrollCenter.dy));
                         }
+                        if (appData.toolSelected == "shape_multiline") {
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          Offset docPosition = getDocumentPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                              docSize.width,
+                              docSize.height,
+                              _scrollCenter.dx,
+                              _scrollCenter.dy);
+                          if (appData.multiclick) {
+                            appData.addNewShape(docPosition);
+                            appData.multiclick = false;
+                          } else if (appData.isAltOptionKeyPressed) {
+                            appData.multiclick = true;
+                            Size docSize = Size(
+                                appData.docSize.width, appData.docSize.height);
+                            appData.addRelativePointToNewShape(docPosition);
+                            appData.addNewShapeToShapesList();
+                          }
+                        }
                         setState(() {});
                       },
                       onPointerMove: (event) {
@@ -232,6 +255,20 @@ class LayoutDesignState extends State<LayoutDesign> {
                                     docSize.height,
                                     _scrollCenter.dx,
                                     _scrollCenter.dy));
+                          }
+                          if (appData.toolSelected == "shape_line" ||
+                              appData.toolSelected == "shape_multiline") {
+                            Offset docPosition = getDocumentPosition(
+                                event.localPosition,
+                                appData.zoom,
+                                constraints.maxWidth,
+                                constraints.maxHeight,
+                                docSize.width,
+                                docSize.height,
+                                _scrollCenter.dx,
+                                _scrollCenter.dy);
+
+                            appData.moveLastVertice(docPosition);
                           }
                         }
                         if (appData.toolSelected == "pointer_shapes" &&
@@ -263,6 +300,25 @@ class LayoutDesignState extends State<LayoutDesign> {
                         if (appData.toolSelected == "shape_drawing") {
                           appData.addNewShapeToShapesList();
                         }
+                        if (appData.toolSelected == "shape_line") {
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          Offset docPosition = getDocumentPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                              docSize.width,
+                              docSize.height,
+                              _scrollCenter.dx,
+                              _scrollCenter.dy);
+
+                          appData.addRelativePointToNewShape(docPosition);
+
+                          appData.addNewShapeToShapesList();
+                        }
+                        if (appData.toolSelected == "shape_multiline") {}
+
                         if (appData.toolSelected == "pointer_shapes" &&
                             appData.shapeSelected != -1) {
                           Size docSize = Size(
