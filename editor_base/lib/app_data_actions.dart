@@ -117,3 +117,29 @@ class ActionAddNewShape implements Action {
     print(appData.shapesList);
   }
 }
+
+class ActionMoveShape implements Action {
+  final AppData appData;
+  final Offset newPosition;
+  final int shapeSelected;
+  Shape shape = Shape();
+
+  ActionMoveShape(this.appData, this.newPosition, this.shapeSelected) {
+    shape = appData.shapesList[shapeSelected];
+  }
+
+  @override
+  void redo() {
+    shape.initialPosition = shape.position;
+    shape.position = newPosition;
+    appData.getRecuadre(appData.shapesList[appData.shapeSelected]);
+    appData.forceNotifyListeners();
+  }
+
+  @override
+  void undo() {
+    shape.position = shape.initialPosition;
+    appData.getRecuadre(appData.shapesList[appData.shapeSelected]);
+    appData.forceNotifyListeners();
+  }
+}
