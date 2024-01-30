@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show Platform;
+import 'package:editor_base/util_shape.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cupertino_desktop_kit/cdk.dart';
@@ -42,11 +44,46 @@ void main() async {
         if (event.logicalKey == LogicalKeyboardKey.altLeft) {
           appData.isAltOptionKeyPressed = true;
         }
+        if (event.logicalKey == LogicalKeyboardKey.keyC &&
+            event.isControlPressed) {
+          // Copiar el polígono seleccionado al portapapeles
+          try {
+            Clipboard.setData(ClipboardData(
+                text: jsonEncode(
+                    appData.shapesList[appData.shapeSelected].toMap())));
+          } catch (e) {
+            // Manejar problemas al copiar el polígono al portapapeles
+          }
+        } else if (event.logicalKey == LogicalKeyboardKey.keyV &&
+            event.isControlPressed) {
+          // Pegar el polígono desde el portapapeles
+          Clipboard.getData('text/plain').then((value) {
+            print('Pegar');
+            print(value);
+            if (value != null) {
+              try {
+                final parsedMap = jsonDecode(value.text!);
+                print(parsedMap['type']);
+                if (parsedMap['type'] == 'shape_drawing') {
+                  final Shape parsedShape = Shape();
+                  parsedShape.fromMap(parsedMap['data']); // Error
+                  // Agregar el polígono a la lista de polígonos
+                  appData.shapesList.add(parsedShape);
+                  print(appData.shapesList);
+                }
+              } catch (e) {
+                print(e);
+                // Manejar problemas al pegar el polígono desde el portapapeles
+              }
+            }
+          });
+        }
       } else if (event is RawKeyUpEvent) {
         if (event.logicalKey == LogicalKeyboardKey.altLeft) {
           appData.isAltOptionKeyPressed = false;
         }
       }
+
       return KeyEventResult.ignored;
     },
     child: ChangeNotifierProvider(
