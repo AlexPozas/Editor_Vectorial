@@ -176,6 +176,9 @@ class LayoutDesignState extends State<LayoutDesign> {
                                 .shapesList[appData.shapeSelected].strokeColor);
                             appData.setNewShapeStrokeWidth(appData
                                 .shapesList[appData.shapeSelected].strokeWidth);
+
+                            appData.shapesList[appData.shapeSelected]
+                                .setInitialPosition(dragStartPosition);
                             setState(() {});
                           }
                         }

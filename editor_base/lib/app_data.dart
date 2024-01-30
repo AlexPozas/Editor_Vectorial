@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_desktop_kit/cdk.dart';
 import 'app_click_selector.dart';
 import 'app_data_actions.dart';
+import 'app_data_actions.dart';
 import 'util_shape.dart';
 
 class AppData with ChangeNotifier {
@@ -158,6 +159,7 @@ class AppData with ChangeNotifier {
   void setShapePosition(Offset position) {
     if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
       shapesList[shapeSelected].setPosition(position);
+      actionManager.register(ActionMoveShape(this, position, shapeSelected));
       notifyListeners();
     }
   }
@@ -165,7 +167,6 @@ class AppData with ChangeNotifier {
   void updateShapePosition(Offset delta) {
     if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
       shapesList[shapeSelected].position += delta;
-
       notifyListeners();
     } else {
       setShapeSelected(-1);
