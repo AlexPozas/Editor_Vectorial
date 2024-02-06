@@ -187,8 +187,10 @@ class LayoutDesignState extends State<LayoutDesign> {
                           }
 
                           Offset newShapePosition = docPosition;
-                          appData.shapesList[appData.shapeSelected]
-                              .setInitialPosition(newShapePosition);
+                          if (appData.shapeSelected != -1) {
+                            appData.shapesList[appData.shapeSelected]
+                                .setInitialPosition(newShapePosition);
+                          }
                         }
                         if (appData.toolSelected == "shape_drawing" ||
                             appData.toolSelected == "shape_line") {

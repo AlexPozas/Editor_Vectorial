@@ -134,6 +134,7 @@ class ActionMoveShape implements Action {
     shape.position = newPosition;
     appData.getRecuadre(appData.shapesList[appData.shapeSelected]);
     appData.forceNotifyListeners();
+    print("MoveShape");
   }
 
   @override
