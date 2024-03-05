@@ -106,6 +106,14 @@ class AppData with ChangeNotifier {
     notifyListeners();
   }
 
+  void square(Offset point) {
+    if (newShape.getVertices().length >= 2) {
+      newShape.getVertices().removeLast();
+    }
+    newShape.addRelativePoint(point);
+    notifyListeners();
+  }
+
   void setFillColor(Color fillcolor) {
     shapeFillColor = fillcolor;
     newShape.setFillColor(fillcolor);

@@ -187,8 +187,10 @@ class LayoutDesignState extends State<LayoutDesign> {
                           }
 
                           Offset newShapePosition = docPosition;
-                          appData.shapesList[appData.shapeSelected]
-                              .setInitialPosition(newShapePosition);
+                          if (appData.shapeSelected != -1) {
+                            appData.shapesList[appData.shapeSelected]
+                                .setInitialPosition(newShapePosition);
+                          }
                         }
                         if (appData.toolSelected == "shape_drawing" ||
                             appData.toolSelected == "shape_line") {
@@ -227,6 +229,19 @@ class LayoutDesignState extends State<LayoutDesign> {
                             appData.addNewShapeToShapesList();
                           }
                         }
+                        if (appData.toolSelected == "shape_rectangle") {
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          appData.addNewShape(getDocumentPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                              docSize.width,
+                              docSize.height,
+                              _scrollCenter.dx,
+                              _scrollCenter.dy));
+                        }
                         setState(() {});
                       },
                       onPointerMove: (event) {
@@ -256,6 +271,19 @@ class LayoutDesignState extends State<LayoutDesign> {
                                     _scrollCenter.dx,
                                     _scrollCenter.dy));
                           }
+                          if (appData.toolSelected == "shape_rectangle") {
+                            Offset docPosition = getDocumentPosition(
+                                event.localPosition,
+                                appData.zoom,
+                                constraints.maxWidth,
+                                constraints.maxHeight,
+                                docSize.width,
+                                docSize.height,
+                                _scrollCenter.dx,
+                                _scrollCenter.dy);
+
+                            appData.moveLastVertice(docPosition);
+                          }
                           if (appData.toolSelected == "shape_line" ||
                               appData.toolSelected == "shape_multiline") {
                             Offset docPosition = getDocumentPosition(
@@ -276,6 +304,7 @@ class LayoutDesignState extends State<LayoutDesign> {
                           Offset newShapePosition =
                               docPosition - _dragStartOffset;
                           appData.updateShapePosition(newShapePosition);
+
                           if (dragStartPosition != newShapePosition) {
                             appData.setShapePosition(newShapePosition);
                             appData.getRecuadre(
@@ -317,7 +346,21 @@ class LayoutDesignState extends State<LayoutDesign> {
 
                           appData.addNewShapeToShapesList();
                         }
-                        if (appData.toolSelected == "shape_multiline") {}
+                        if (appData.toolSelected == "shape_multiline") {
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          Offset docPosition = getDocumentPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints.maxWidth,
+                              constraints.maxHeight,
+                              docSize.width,
+                              docSize.height,
+                              _scrollCenter.dx,
+                              _scrollCenter.dy);
+                          appData.multiclick = false;
+                          appData.addRelativePointToNewShape(docPosition);
+                        }
 
                         if (appData.toolSelected == "pointer_shapes" &&
                             appData.shapeSelected != -1) {
