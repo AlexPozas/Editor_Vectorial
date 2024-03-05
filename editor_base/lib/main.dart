@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'package:editor_base/app_data_actions.dart';
 import 'package:editor_base/util_shape.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,12 +64,18 @@ void main() async {
             if (value != null) {
               try {
                 final parsedMap = jsonDecode(value.text!);
-                print(parsedMap['type']);
+                print(parsedMap);
                 if (parsedMap['type'] == 'shape_drawing') {
                   final Shape parsedShape = Shape();
-                  parsedShape.fromMap(parsedMap['data']); // Error
+                  parsedShape.fromMap(parsedMap); // Error
+
                   // Agregar el polígono a la lista de polígonos
                   appData.shapesList.add(parsedShape);
+                  appData.actionManager
+                      .register(ActionAddNewShape(appData, parsedShape));
+
+                  appData.forceNotifyListeners;
+
                   print(appData.shapesList);
                 }
               } catch (e) {

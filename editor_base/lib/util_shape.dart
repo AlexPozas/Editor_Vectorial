@@ -35,6 +35,14 @@ class Shape {
     initialPosition =
         Offset(map['initialPosition'][0], map['initialPosition'][1]);
     fillColor = Color(map['fillColor']);
+
+    this.setPosition(position);
+    this.setVertices(vertices);
+    this.setStrokeWidth(strokeWidth);
+    this.setStrokeColor(strokeColor);
+    this.setClosed(closed);
+    this.setInitialPosition(initialPosition);
+    this.setFillColor(fillColor);
   }
 
   void setFillColor(Color c) {
@@ -43,6 +51,10 @@ class Shape {
 
   List getVertices() {
     return vertices;
+  }
+
+  void setVertices(List<Offset> vertices) {
+    vertices = this.vertices;
   }
 
   void setClosed(bool close) {
