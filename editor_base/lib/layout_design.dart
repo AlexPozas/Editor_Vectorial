@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_desktop_kit/cdk.dart';
 import 'package:provider/provider.dart';
 import 'app_data.dart';
@@ -19,10 +18,11 @@ class LayoutDesignState extends State<LayoutDesign> {
   final GlobalKey<UtilCustomScrollHorizontalState> _keyScrollX = GlobalKey();
   final GlobalKey<UtilCustomScrollVerticalState> _keyScrollY = GlobalKey();
   Offset _scrollCenter = const Offset(0, 0);
+  Offset dragStartPosition = Offset(0, 0);
+  Offset dragStartOffset = Offset(0, 0);
   bool _isMouseButtonPressed = false;
   final FocusNode _focusNode = FocusNode();
-  Offset dragStartPosition = Offset.zero;
-  Offset _dragStartOffset = Offset.zero;
+
   @override
   void initState() {
     super.initState();
@@ -48,30 +48,17 @@ class LayoutDesignState extends State<LayoutDesign> {
   }
 
   // Retorna la posició x,y al document, respecte on s'ha fet click
-  Offset getDocumentPosition(
-    Offset position,
-    double zoom,
-    double viewportWidth,
-    double viewportHeight,
-    double documentWidth,
-    double documentHeight,
-    double centerX,
-    double centerY,
-  ) {
-    // Calcula la escala relativa al zoom proporcionado
+  Offset _getDocPosition(Offset position, double zoom,
+      BoxConstraints constraints, Size docSize, Offset center) {
     double scale = zoom / 100;
-
-    // Calcula las transformaciones de traslación para centrar el documento en el viewport
     double translateX =
-        (viewportWidth / (2 * scale)) - (documentWidth / 2) - centerX;
-    double translateY =
-        (viewportHeight / (2 * scale)) - (documentHeight / 2) - centerY;
-
-    // Aplica las transformaciones inversas para obtener la posición original en el documento
+        (constraints.maxWidth / (2 * scale)) - (docSize.width / 2) - center.dx;
+    double translateY = (constraints.maxHeight / (2 * scale)) -
+        (docSize.height / 2) -
+        center.dy;
     double originalX = (position.dx / scale) - translateX;
     double originalY = (position.dy / scale) - translateY;
 
-    // Devuelve la posición original en el documento
     return Offset(originalX, originalY);
   }
 
@@ -116,11 +103,7 @@ class LayoutDesignState extends State<LayoutDesign> {
         } else {
           cursorShown = SystemMouseCursors.grab;
         }
-      } else if (appData.toolSelected == "shape_drawing" ||
-          appData.toolSelected == "shape_line" ||
-          appData.toolSelected == "shape_multiline" ||
-          appData.toolSelected == "shape_rectangle" ||
-          appData.toolSelected == "shape_ellipsis") {
+      } else /*if (appData.toolSelected == "shape_drawing")*/ {
         cursorShown = SystemMouseCursors.precise;
       }
 
@@ -155,69 +138,28 @@ class LayoutDesignState extends State<LayoutDesign> {
                         _isMouseButtonPressed = true;
                         Size docSize =
                             Size(appData.docSize.width, appData.docSize.height);
-                        Offset docPosition = getDocumentPosition(
+                        Offset docPosition = _getDocPosition(
                             event.localPosition,
                             appData.zoom,
-                            constraints.maxWidth,
-                            constraints.maxHeight,
-                            docSize.width,
-                            docSize.height,
-                            _scrollCenter.dx,
-                            _scrollCenter.dy);
+                            constraints,
+                            docSize,
+                            _scrollCenter);
                         if (appData.toolSelected == "pointer_shapes") {
                           await appData.selectShapeAtPosition(docPosition,
                               event.localPosition, constraints, _scrollCenter);
-
-                          // TASK RECUADRE
-                          if (appData.shapeSelected != -1) {
-                            dragStartPosition = appData
-                                .shapesList[appData.shapeSelected].position;
-                            _dragStartOffset = docPosition - dragStartPosition;
+                          if (appData.shapeSelected > -1) {
                             appData.getRecuadre(
                                 appData.shapesList[appData.shapeSelected]);
-                            appData.recuadre = true;
-                            appData.setStrokeColor(appData
-                                .shapesList[appData.shapeSelected].strokeColor);
-                            appData.setNewShapeStrokeWidth(appData
-                                .shapesList[appData.shapeSelected].strokeWidth);
-
-                            appData.shapesList[appData.shapeSelected]
-                                .setInitialPosition(dragStartPosition);
-                            setState(() {});
+                            dragStartPosition = appData
+                                .shapesList[appData.shapeSelected].position;
+                            dragStartOffset = docPosition - dragStartPosition;
                           }
-
-                          Offset newShapePosition = docPosition;
-                          if (appData.shapeSelected != -1) {
-                            appData.shapesList[appData.shapeSelected]
-                                .setInitialPosition(newShapePosition);
-                          }
-                        }
-                        if (appData.toolSelected == "shape_drawing" ||
+                        } else if (appData.toolSelected == "shape_drawing" ||
                             appData.toolSelected == "shape_line") {
-                          Size docSize = Size(
-                              appData.docSize.width, appData.docSize.height);
-                          appData.addNewShape(getDocumentPosition(
-                              event.localPosition,
-                              appData.zoom,
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                              docSize.width,
-                              docSize.height,
-                              _scrollCenter.dx,
-                              _scrollCenter.dy));
-                        }
-                        if (appData.toolSelected == "shape_multiline") {
-                          Size docSize = Size(
-                              appData.docSize.width, appData.docSize.height);
-                          Offset docPosition = getDocumentPosition(
-                              event.localPosition,
-                              appData.zoom,
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                              docSize.width,
-                              docSize.height,
-                              _scrollCenter.dx,
-                              _scrollCenter.dy);
+                          appData.setShapeSelected(-1);
+                          appData.addNewShape(docPosition);
+                        } else if (appData.toolSelected == "shape_multiline") {
+                          appData.setShapeSelected(-1);
                           if (appData.multiclick) {
                             appData.addNewShape(docPosition);
                             appData.multiclick = false;
@@ -225,93 +167,98 @@ class LayoutDesignState extends State<LayoutDesign> {
                             appData.multiclick = true;
                             Size docSize = Size(
                                 appData.docSize.width, appData.docSize.height);
-                            appData.addRelativePointToNewShape(docPosition);
+                            appData.addRelativePointToNewShape(_getDocPosition(
+                                event.localPosition,
+                                appData.zoom,
+                                constraints,
+                                docSize,
+                                _scrollCenter));
                             appData.addNewShapeToShapesList();
+                          } else {
+                            Size docSize = Size(
+                                appData.docSize.width, appData.docSize.height);
+                            appData.addRelativePointToNewShape(_getDocPosition(
+                                event.localPosition,
+                                appData.zoom,
+                                constraints,
+                                docSize,
+                                _scrollCenter));
                           }
+                        } else if (appData.toolSelected == "shape_rectangle") {
+                          appData.setShapeSelected(-1);
+                          appData.addNewShape(docPosition);
                         }
-                        if (appData.toolSelected == "shape_rectangle") {
-                          Size docSize = Size(
-                              appData.docSize.width, appData.docSize.height);
-                          appData.addNewShape(getDocumentPosition(
-                              event.localPosition,
-                              appData.zoom,
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                              docSize.width,
-                              docSize.height,
-                              _scrollCenter.dx,
-                              _scrollCenter.dy));
+                        //////////////////////////////////////
+                        else if (appData.toolSelected == "shape_ellipsis") {
+                          appData.setShapeSelected(-1);
+                          appData.addNewShape(docPosition);
                         }
                         setState(() {});
                       },
                       onPointerMove: (event) {
                         Size docSize =
                             Size(appData.docSize.width, appData.docSize.height);
-                        Offset docPosition = getDocumentPosition(
+                        Offset docPosition = _getDocPosition(
                             event.localPosition,
                             appData.zoom,
-                            constraints.maxWidth,
-                            constraints.maxHeight,
-                            docSize.width,
-                            docSize.height,
-                            _scrollCenter.dx,
-                            _scrollCenter.dy);
+                            constraints,
+                            docSize,
+                            _scrollCenter);
+
                         if (_isMouseButtonPressed) {
                           if (appData.toolSelected == "shape_drawing") {
                             Size docSize = Size(
                                 appData.docSize.width, appData.docSize.height);
-                            appData.addRelativePointToNewShape(
-                                getDocumentPosition(
-                                    event.localPosition,
-                                    appData.zoom,
-                                    constraints.maxWidth,
-                                    constraints.maxHeight,
-                                    docSize.width,
-                                    docSize.height,
-                                    _scrollCenter.dx,
-                                    _scrollCenter.dy));
-                          }
-                          if (appData.toolSelected == "shape_rectangle") {
-                            Offset docPosition = getDocumentPosition(
+                            appData.addRelativePointToNewShape(_getDocPosition(
                                 event.localPosition,
                                 appData.zoom,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
-                                docSize.width,
-                                docSize.height,
-                                _scrollCenter.dx,
-                                _scrollCenter.dy);
-
-                            appData.moveLastVertice(docPosition);
+                                constraints,
+                                docSize,
+                                _scrollCenter));
                           }
-                          if (appData.toolSelected == "shape_line" ||
+                          ///////////////
+                          else if (appData.toolSelected == "shape_line" ||
                               appData.toolSelected == "shape_multiline") {
-                            Offset docPosition = getDocumentPosition(
+                            Size docSize = Size(
+                                appData.docSize.width, appData.docSize.height);
+                            appData.moveLastVertice(_getDocPosition(
                                 event.localPosition,
                                 appData.zoom,
-                                constraints.maxWidth,
-                                constraints.maxHeight,
-                                docSize.width,
-                                docSize.height,
-                                _scrollCenter.dx,
-                                _scrollCenter.dy);
-
-                            appData.moveLastVertice(docPosition);
+                                constraints,
+                                docSize,
+                                _scrollCenter));
+                          } else if (appData.toolSelected ==
+                              "shape_rectangle") {
+                            Size docSize = Size(
+                                appData.docSize.width, appData.docSize.height);
+                            appData.moveSquareVertices(_getDocPosition(
+                                event.localPosition,
+                                appData.zoom,
+                                constraints,
+                                docSize,
+                                _scrollCenter));
+                          } else if (appData.toolSelected == "shape_ellipsis") {
+                            appData.newShape.setType("elipse");
+                            Size docSize = Size(
+                                appData.docSize.width, appData.docSize.height);
+                            appData.moveLastVertice(_getDocPosition(
+                                event.localPosition,
+                                appData.zoom,
+                                constraints,
+                                docSize,
+                                _scrollCenter));
                           }
-                        }
-                        if (appData.toolSelected == "pointer_shapes" &&
-                            appData.shapeSelected != -1) {
-                          Offset newShapePosition =
-                              docPosition - _dragStartOffset;
-                          appData.updateShapePosition(newShapePosition);
-
-                          if (dragStartPosition != newShapePosition) {
+                          ////////////////
+                          else if (appData.toolSelected == "pointer_shapes" &&
+                              appData.shapeSelected != -1) {
+                            Offset newShapePosition =
+                                docPosition - dragStartOffset;
                             appData.setShapePosition(newShapePosition);
                             appData.getRecuadre(
                                 appData.shapesList[appData.shapeSelected]);
+                            appData.forceNotifyListeners();
                           }
                         }
-
                         if (_isMouseButtonPressed &&
                             appData.toolSelected == "view_grab") {
                           if (event.delta.dx != 0) {
@@ -329,59 +276,50 @@ class LayoutDesignState extends State<LayoutDesign> {
                         if (appData.toolSelected == "shape_drawing") {
                           appData.addNewShapeToShapesList();
                         }
-                        if (appData.toolSelected == "shape_line") {
+                        //////////
+                        else if (appData.toolSelected == "shape_ellipsis") {
+                          appData.addNewEllipseToShapeList();
+                        } else if (appData.toolSelected == "shape_line") {
                           Size docSize = Size(
                               appData.docSize.width, appData.docSize.height);
-                          Offset docPosition = getDocumentPosition(
+                          appData.addRelativePointToNewShape(_getDocPosition(
                               event.localPosition,
                               appData.zoom,
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                              docSize.width,
-                              docSize.height,
-                              _scrollCenter.dx,
-                              _scrollCenter.dy);
-
-                          appData.addRelativePointToNewShape(docPosition);
-
+                              constraints,
+                              docSize,
+                              _scrollCenter));
+                          appData.addNewShapeToShapesList();
+                        } else if (appData.toolSelected == "shape_rectangle") {
+                          Size docSize = Size(
+                              appData.docSize.width, appData.docSize.height);
+                          appData.addSquare(_getDocPosition(
+                              event.localPosition,
+                              appData.zoom,
+                              constraints,
+                              docSize,
+                              _scrollCenter));
                           appData.addNewShapeToShapesList();
                         }
-                        if (appData.toolSelected == "shape_multiline") {
-                          Size docSize = Size(
-                              appData.docSize.width, appData.docSize.height);
-                          Offset docPosition = getDocumentPosition(
-                              event.localPosition,
-                              appData.zoom,
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                              docSize.width,
-                              docSize.height,
-                              _scrollCenter.dx,
-                              _scrollCenter.dy);
-                          appData.multiclick = false;
-                          appData.addRelativePointToNewShape(docPosition);
-                        }
-
-                        if (appData.toolSelected == "pointer_shapes" &&
+                        ////////
+                        else if (appData.toolSelected == "pointer_shapes" &&
                             appData.shapeSelected != -1) {
                           Size docSize = Size(
                               appData.docSize.width, appData.docSize.height);
-                          Offset docPosition = getDocumentPosition(
+                          Offset docPosition = _getDocPosition(
                               event.localPosition,
                               appData.zoom,
-                              constraints.maxWidth,
-                              constraints.maxHeight,
-                              docSize.width,
-                              docSize.height,
-                              _scrollCenter.dx,
-                              _scrollCenter.dy);
+                              constraints,
+                              docSize,
+                              _scrollCenter);
                           Offset newShapePosition =
-                              docPosition - _dragStartOffset;
+                              docPosition - dragStartOffset;
                           if (dragStartPosition != newShapePosition) {
                             appData.setShapePosition(newShapePosition);
+                            appData.getRecuadre(
+                                appData.shapesList[appData.shapeSelected]);
+                            appData.forceNotifyListeners();
                           }
                         }
-
                         setState(() {});
                       },
                       onPointerSignal: (pointerSignal) {

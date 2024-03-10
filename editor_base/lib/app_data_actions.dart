@@ -93,28 +93,14 @@ class ActionAddNewShape implements Action {
 
   @override
   void undo() {
-    print(appData.recuadreP.length);
-    appData.recuadreP.clear();
-    appData.shapeSelected = -1;
-    appData.removedShapesList.add(newShape);
     appData.shapesList.remove(newShape);
-    print(appData.shapesList);
     appData.forceNotifyListeners();
-    print("Undone");
   }
 
   @override
   void redo() {
-    Shape redoneShape = Shape();
-    if (appData.removedShapesList.length > 0) {
-      redoneShape =
-          appData.removedShapesList[appData.removedShapesList.length - 1];
-      appData.shapesList.add(redoneShape);
-      appData.removedShapesList.remove(redoneShape);
-      appData.forceNotifyListeners();
-    }
-    print("Redo");
-    print(appData.shapesList);
+    appData.shapesList.add(newShape);
+    appData.forceNotifyListeners();
   }
 }
 
@@ -142,5 +128,148 @@ class ActionMoveShape implements Action {
     shape.position = shape.initialPosition;
     appData.getRecuadre(appData.shapesList[appData.shapeSelected]);
     appData.forceNotifyListeners();
+  }
+}
+
+class ActionChangeBackgroundColor implements Action {
+  final AppData appData;
+  final Color oldColor;
+  final Color newColor;
+
+  ActionChangeBackgroundColor(this.appData, this.oldColor, this.newColor);
+
+  @override
+  void undo() {
+    appData.backgroundColor = oldColor;
+    appData.notifyListeners();
+  }
+
+  @override
+  void redo() {
+    appData.backgroundColor = newColor;
+    appData.notifyListeners();
+  }
+}
+
+class ActionDeleteShape implements Action {
+  final AppData appData;
+  final int id;
+  final Shape shape;
+
+  ActionDeleteShape(this.appData, this.id, this.shape);
+
+  @override
+  void undo() {
+    appData.shapesList.add(shape);
+  }
+
+  @override
+  void redo() {
+    appData.shapesList.remove(shape);
+  }
+}
+
+class ActionChangeClosed implements Action {
+  final AppData appData;
+  final bool newValue;
+  final int id;
+
+  ActionChangeClosed(this.appData, this.id, this.newValue);
+
+  @override
+  void undo() {
+    appData.shapesList[id].setClosed(!newValue);
+    appData.notifyListeners();
+  }
+
+  @override
+  void redo() {
+    appData.shapesList[id].setClosed(newValue);
+    appData.notifyListeners();
+  }
+}
+
+class ActionChangePosition implements Action {
+  final AppData appData;
+  final Offset oldPosition;
+  final Offset newPosition;
+  final int id;
+
+  ActionChangePosition(
+      this.appData, this.id, this.oldPosition, this.newPosition);
+
+  @override
+  void undo() {
+    appData.shapesList[id].setPosition(oldPosition);
+    appData.notifyListeners();
+  }
+
+  @override
+  void redo() {
+    appData.shapesList[id].setPosition(newPosition);
+    appData.notifyListeners();
+  }
+}
+
+class ActionChangeStrokeWidth implements Action {
+  final AppData appData;
+  final double oldValue;
+  final double newValue;
+  final int id;
+
+  ActionChangeStrokeWidth(this.appData, this.id, this.oldValue, this.newValue);
+
+  @override
+  void undo() {
+    appData.shapesList[id].setStrokeWidth(oldValue);
+    appData.notifyListeners();
+  }
+
+  @override
+  void redo() {
+    appData.shapesList[id].setStrokeWidth(newValue);
+    appData.notifyListeners();
+  }
+}
+
+class ActionChangeStrokeColor implements Action {
+  final AppData appData;
+  final Color oldValue;
+  final Color newValue;
+  final int id;
+
+  ActionChangeStrokeColor(this.appData, this.id, this.oldValue, this.newValue);
+
+  @override
+  void undo() {
+    appData.shapesList[id].setStrokeColor(oldValue);
+    appData.notifyListeners();
+  }
+
+  @override
+  void redo() {
+    appData.shapesList[id].setStrokeColor(newValue);
+    appData.notifyListeners();
+  }
+}
+
+class ActionChangeFillColor implements Action {
+  final AppData appData;
+  final Color oldValue;
+  final Color newValue;
+  final int id;
+
+  ActionChangeFillColor(this.appData, this.id, this.oldValue, this.newValue);
+
+  @override
+  void undo() {
+    appData.shapesList[id].setFillColor(oldValue);
+    appData.notifyListeners();
+  }
+
+  @override
+  void redo() {
+    appData.shapesList[id].setFillColor(newValue);
+    appData.notifyListeners();
   }
 }

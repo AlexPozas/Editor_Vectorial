@@ -9,56 +9,26 @@ class Shape {
   bool closed = false;
   Offset initialPosition = Offset(0, 0);
   Color fillColor = CDKTheme.black;
-
+  Size scale = const Size(1, 1);
+  double rotation = 0;
+  Offset endPosition = Offset(0, 0);
+  String type = "shape";
   Shape();
 
-  Map<String, dynamic> toMap() {
-    return {
-      'type': 'shape_drawing',
-      'position': [position.dx, position.dy],
-      'vertices': vertices.map((v) => [v.dx, v.dy]).toList(),
-      'strokeWidth': strokeWidth,
-      'strokeColor': strokeColor.value,
-      'closed': closed,
-      'initialPosition': [initialPosition.dx, initialPosition.dy],
-      'fillColor': fillColor.value,
-    };
-  }
-
-  void fromMap(Map<String, dynamic> map) {
-    position = Offset(map['position'][0], map['position'][1]);
-    vertices =
-        (map['vertices'] as List).map((v) => Offset(v[0], v[1])).toList();
-    strokeWidth = map['strokeWidth'];
-    strokeColor = Color(map['strokeColor']);
-    closed = map['closed'];
-    initialPosition =
-        Offset(map['initialPosition'][0], map['initialPosition'][1]);
-    fillColor = Color(map['fillColor']);
-
-    this.setPosition(position);
-    this.setVertices(vertices);
-    this.setStrokeWidth(strokeWidth);
-    this.setStrokeColor(strokeColor);
-    this.setClosed(closed);
-    this.setInitialPosition(initialPosition);
-    this.setFillColor(fillColor);
+  void setType(String t) {
+    this.type = t;
   }
 
   void setFillColor(Color c) {
     fillColor = c;
   }
 
-  List getVertices() {
-    return vertices;
-  }
-
-  void setVertices(List<Offset> vertices) {
-    vertices = this.vertices;
-  }
-
   void setClosed(bool close) {
     closed = close;
+  }
+
+  void setStrokeWidth(double newWeight) {
+    strokeWidth = newWeight;
   }
 
   void setStrokeColor(Color newColor) {
@@ -73,6 +43,14 @@ class Shape {
     position = newPosition;
   }
 
+  void setScale(Size newScale) {
+    scale = newScale;
+  }
+
+  void setRotation(double newRotation) {
+    rotation = newRotation;
+  }
+
   void addPoint(Offset point) {
     vertices.add(Offset(point.dx, point.dy));
   }
@@ -81,16 +59,79 @@ class Shape {
     vertices.add(Offset(point.dx - position.dx, point.dy - position.dy));
   }
 
-  void setStrokeWidth(double width) {
-    strokeWidth = width;
+  List getVertices() {
+    return vertices;
   }
 
   void changeAllPropieties(Shape changeTo) {
     setPosition(changeTo.position);
+    setScale(changeTo.scale);
     setStrokeColor(changeTo.strokeColor);
     setStrokeWidth(changeTo.strokeWidth);
     setInitialPosition(changeTo.initialPosition);
+    setRotation(changeTo.rotation);
     vertices.clear();
     vertices = changeTo.vertices;
+  }
+
+  // Converteix la forma en un mapa per serialitzar
+  Map<String, dynamic> toMap() {
+    return {
+      'type': 'shape_drawing',
+      'object': {
+        'position': {'dx': position.dx, 'dy': position.dy},
+        'vertices': vertices.map((v) => {'dx': v.dx, 'dy': v.dy}).toList(),
+        'strokeWidth': strokeWidth,
+        'strokeColor': strokeColor.value,
+        'fillColor': fillColor.value,
+        'closed': closed,
+      }
+    };
+  }
+
+  // Crea una forma a partir d'un mapa
+  static Shape fromMap(Map<String, dynamic> map) {
+    if (map['type'] != 'shape_drawing') {
+      throw Exception('Type is not a shape_drawing');
+    }
+
+    var objectMap = map['object'] as Map<String, dynamic>;
+    var shape = ShapeDrawing()
+      ..setPosition(
+          Offset(objectMap['position']['dx'], objectMap['position']['dy']))
+      ..setStrokeWidth(objectMap['strokeWidth'])
+      ..setStrokeColor(Color(objectMap['strokeColor']))
+      ..setFillColor(Color(objectMap['fillColor']))
+      ..setClosed(objectMap['closed']);
+
+    if (objectMap['vertices'] != null) {
+      var verticesList = objectMap['vertices'] as List;
+      shape.vertices =
+          verticesList.map((v) => Offset(v['dx'], v['dy'])).toList();
+    }
+    return shape;
+  }
+}
+
+////////////////////
+class ShapeDrawing extends Shape {}
+
+class ShapeLine extends Shape {}
+
+class ShapeMultiline extends Shape {}
+
+class ShapeRectangle extends Shape {}
+
+class ShapeEllipsis extends Shape {
+  void setAttributesFromOtherShape(Shape oldShape) {
+    this.strokeColor = oldShape.strokeColor;
+    this.endPosition = oldShape.endPosition;
+    this.scale = oldShape.scale;
+    this.position = oldShape.position;
+    this.initialPosition = oldShape.initialPosition;
+    this.fillColor = oldShape.fillColor;
+    this.strokeWidth = oldShape.strokeWidth;
+    this.vertices = oldShape.vertices;
+    this.rotation = oldShape.rotation;
   }
 }

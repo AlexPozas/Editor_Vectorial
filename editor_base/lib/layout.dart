@@ -26,6 +26,7 @@ class _LayoutState extends State<Layout> {
   Widget build(BuildContext context) {
     AppData appData = Provider.of<AppData>(context);
     CDKTheme theme = CDKThemeNotifier.of(context)!.changeNotifier;
+    appData.cont = context;
 
     double zoomSlider = appData.getZoomNormalized();
 

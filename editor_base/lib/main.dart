@@ -20,7 +20,6 @@ void main() async {
       windowManager.waitUntilReadyToShow().then(showWindow);
     }
   } catch (e) {
-    // ignore: avoid_print
     print(e);
   }
 
@@ -67,7 +66,7 @@ void main() async {
                 print(parsedMap);
                 if (parsedMap['type'] == 'shape_drawing') {
                   final Shape parsedShape = Shape();
-                  parsedShape.fromMap(parsedMap); // Error
+                  // parsedShape.fromMap(parsedMap); // Error
 
                   // Agregar el polígono a la lista de polígonos
                   appData.shapesList.add(parsedShape);
