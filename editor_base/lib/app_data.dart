@@ -109,6 +109,7 @@ class AppData with ChangeNotifier {
     shapeSelected = index;
 
     if (index > -1) {
+      getRecuadre(shapesList[index]);
       newShape.strokeWidth = shapesList[index].strokeWidth;
       strokeColor = shapesList[index].strokeColor;
     }
@@ -157,8 +158,10 @@ class AppData with ChangeNotifier {
   }
 
   void setFillColor(Color fillcolor) {
-    actionManager.register(ActionChangeFillColor(
-        this, shapeSelected, shapesList[shapeSelected].fillColor, fillcolor));
+    if (shapeSelected > -1) {
+      actionManager.register(ActionChangeFillColor(
+          this, shapeSelected, shapesList[shapeSelected].fillColor, fillcolor));
+    }
 
     shapeFillColor = fillcolor;
     newShape.setFillColor(fillcolor);
@@ -215,11 +218,13 @@ class AppData with ChangeNotifier {
   }
 
   void setStrokeColor(Color color) {
-    actionManager.register(ActionChangeStrokeColor(
-        this, shapeSelected, shapesList[shapeSelected].strokeColor, color));
-
+    if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
+      actionManager.register(ActionChangeStrokeColor(
+          this, shapeSelected, shapesList[shapeSelected].strokeColor, color));
+    }
     newShape.setStrokeColor(color);
     strokeColor = color;
+
     notifyListeners();
   }
 

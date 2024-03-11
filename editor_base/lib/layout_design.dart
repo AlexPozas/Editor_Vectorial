@@ -161,8 +161,8 @@ class LayoutDesignState extends State<LayoutDesign> {
                         } else if (appData.toolSelected == "shape_multiline") {
                           appData.setShapeSelected(-1);
                           if (appData.multiclick) {
-                            appData.addNewShape(docPosition);
                             appData.multiclick = false;
+                            appData.addNewShape(docPosition);
                           } else if (appData.isAltOptionKeyPressed) {
                             appData.multiclick = true;
                             Size docSize = Size(
