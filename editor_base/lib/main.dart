@@ -65,8 +65,8 @@ void main() async {
                 final parsedMap = jsonDecode(value.text!);
                 print(parsedMap);
                 if (parsedMap['type'] == 'shape_drawing') {
-                  final Shape parsedShape = Shape();
-                  // parsedShape.fromMap(parsedMap); // Error
+                  final Shape parsedShape = ShapeDrawing();
+                  Shape.fromMap(parsedMap); // Error
 
                   // Agregar el polígono a la lista de polígonos
                   appData.shapesList.add(parsedShape);

@@ -25,7 +25,7 @@ class AppData with ChangeNotifier {
   double zoom = 95;
   Size docSize = const Size(500, 400);
   String toolSelected = "shape_drawing";
-  Shape newShape = Shape(); //shapesList
+  Shape newShape = ShapeDrawing(); //shapesList
   List<Shape> removedShapesList = [];
   double strokeWeight = 1;
   List<Shape> shapesList = [];
@@ -191,7 +191,6 @@ class AppData with ChangeNotifier {
 
       actionManager.register(ActionAddNewShape(this, newShape));
       newShape = ShapeDrawing();
-      notifyListeners();
     }
   }
 
@@ -237,6 +236,11 @@ class AppData with ChangeNotifier {
         this, docPosition, localPosition, constraints, center));
   }
 
+  Future<void> copyToClipboard() async {
+    await Clipboard.setData(
+        ClipboardData(text: jsonEncode(shapesList[shapeSelected].toMap())));
+  }
+
   void setShapePosition(Offset position) {
     if (shapeSelected >= 0 && shapeSelected < shapesList.length) {
       shapesList[shapeSelected].setPosition(position);
@@ -263,11 +267,6 @@ class AppData with ChangeNotifier {
         ActionDeleteShape(this, shapeIndex, shapesList[shapeSelected]));
     setShapeSelected(-1);
     notifyListeners();
-  }
-
-  Future<void> copyToClipboard() async {
-    await Clipboard.setData(
-        ClipboardData(text: jsonEncode(shapesList[shapeSelected].toMap())));
   }
 
   void updateShapePosition(Offset delta) {

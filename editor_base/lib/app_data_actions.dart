@@ -108,7 +108,7 @@ class ActionMoveShape implements Action {
   final AppData appData;
   final Offset newPosition;
   final int shapeSelected;
-  Shape shape = Shape();
+  Shape shape = ShapeDrawing();
 
   ActionMoveShape(this.appData, this.newPosition, this.shapeSelected) {
     shape = appData.shapesList[shapeSelected];

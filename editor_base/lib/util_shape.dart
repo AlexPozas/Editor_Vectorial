@@ -1,18 +1,20 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_cupertino_desktop_kit/cdk.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_cupertino_desktop_kit/cdk_theme.dart';
 
-class Shape {
+abstract class Shape {
   Offset position = const Offset(0, 0);
-  List<Offset> vertices = [];
-  double strokeWidth = 1;
-  Color strokeColor = CDKTheme.black;
-  bool closed = false;
-  Offset initialPosition = Offset(0, 0);
-  Color fillColor = CDKTheme.black;
-  Size scale = const Size(1, 1);
-  double rotation = 0;
-  Offset endPosition = Offset(0, 0);
   String type = "shape";
+  Size scale = const Size(1, 1);
+  Color strokeColor = CDKTheme.black;
+  Color fillColor = Colors.transparent;
+  bool closed = false;
+  double strokeWidth = 1;
+  Offset initialPosition = Offset(0, 0);
+  Offset endPosition = Offset(0, 0);
+  double rotation = 0;
+  List<Offset> vertices = [];
+
   Shape();
 
   void setType(String t) {
@@ -59,10 +61,12 @@ class Shape {
     vertices.add(Offset(point.dx - position.dx, point.dy - position.dy));
   }
 
+/////////
   List getVertices() {
     return vertices;
   }
 
+//////////////
   void changeAllPropieties(Shape changeTo) {
     setPosition(changeTo.position);
     setScale(changeTo.scale);
