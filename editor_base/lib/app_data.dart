@@ -387,7 +387,7 @@ class AppData with ChangeNotifier {
       ], [
         for (var shape in shapes)
           if (shape is ShapeEllipsis)
-            XmlElement(XmlName('ellipse'), [
+            XmlElement(XmlName('elipse'), [
               XmlAttribute(XmlName('cx'),
                   '${shape.vertices[0].dx + shape.position.dx}'), // Posicion de inicio (x)
               XmlAttribute(XmlName('cy'),
