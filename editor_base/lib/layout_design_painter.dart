@@ -182,7 +182,7 @@ class LayoutDesignPainter extends CustomPainter {
       double y = shape.position.dy + shape.vertices[0].dy;
       Path path = Path();
 
-      if (shape is ShapeEllipsis || shape.type == "ellipse") {
+      if (shape is ShapeEllipsis || shape.type == "elipse") {
         Rect eclipse = Rect.fromPoints(Offset(x, y),
             Offset(x, y) + shape.vertices[shape.vertices.length - 1]);
         canvas.drawOval(eclipse, paint);

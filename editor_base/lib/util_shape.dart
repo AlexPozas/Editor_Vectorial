@@ -80,17 +80,33 @@ abstract class Shape {
 
   // Converteix la forma en un mapa per serialitzar
   Map<String, dynamic> toMap() {
-    return {
-      'type': 'shape_drawing',
-      'object': {
-        'position': {'dx': position.dx, 'dy': position.dy},
-        'vertices': vertices.map((v) => {'dx': v.dx, 'dy': v.dy}).toList(),
-        'strokeWidth': strokeWidth,
-        'strokeColor': strokeColor.value,
-        'fillColor': fillColor.value,
-        'closed': closed,
-      }
-    };
+    if (type == "elipse") {
+      return {
+        'type': 'shape_drawing',
+        'object': {
+          'position': {'dx': position.dx, 'dy': position.dy},
+          'vertices': vertices.map((v) => {'dx': v.dx, 'dy': v.dy}).toList(),
+          'rotation': rotation,
+          'scale': scale,
+          'strokeWidth': strokeWidth,
+          'strokeColor': strokeColor.value,
+          'fillColor': fillColor.value,
+          'closed': closed,
+        }
+      };
+    } else {
+      return {
+        'type': 'shape_drawing',
+        'object': {
+          'position': {'dx': position.dx, 'dy': position.dy},
+          'vertices': vertices.map((v) => {'dx': v.dx, 'dy': v.dy}).toList(),
+          'strokeWidth': strokeWidth,
+          'strokeColor': strokeColor.value,
+          'fillColor': fillColor.value,
+          'closed': closed,
+        }
+      };
+    }
   }
 
   // Crea una forma a partir d'un mapa
