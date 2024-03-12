@@ -312,6 +312,7 @@ class AppData with ChangeNotifier {
             List<dynamic> drawings = jsonData['drawings'];
             for (var item in drawings) {
               Shape newShape = Shape.fromMap(item);
+              addNewEllipseToShapeList();
               shapesList.add(newShape);
               notifyListeners();
             }
@@ -380,6 +381,7 @@ class AppData with ChangeNotifier {
     final svgDocument = XmlDocument([
       XmlProcessing('xml', 'version="1.0" encoding="UTF-8"'),
       XmlElement(XmlName('svg'), [
+        XmlAttribute(XmlName('xmlns'), 'http://www.w3.org/2000/svg'),
         XmlAttribute(XmlName('width'),
             docSize.width.toString()), // Ajusta el ancho del SVG
         XmlAttribute(XmlName('height'),
@@ -387,7 +389,7 @@ class AppData with ChangeNotifier {
       ], [
         for (var shape in shapes)
           if (shape is ShapeEllipsis)
-            XmlElement(XmlName('elipse'), [
+            XmlElement(XmlName('ellipse'), [
               XmlAttribute(XmlName('cx'),
                   '${shape.vertices[0].dx + shape.position.dx}'), // Posicion de inicio (x)
               XmlAttribute(XmlName('cy'),

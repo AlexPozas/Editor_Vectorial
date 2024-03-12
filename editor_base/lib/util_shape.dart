@@ -86,12 +86,11 @@ abstract class Shape {
         'object': {
           'position': {'dx': position.dx, 'dy': position.dy},
           'vertices': vertices.map((v) => {'dx': v.dx, 'dy': v.dy}).toList(),
-          'rotation': rotation,
-          'scale': scale,
           'strokeWidth': strokeWidth,
           'strokeColor': strokeColor.value,
           'fillColor': fillColor.value,
           'closed': closed,
+          'type2': 'elipse'
         }
       };
     } else {
@@ -104,6 +103,7 @@ abstract class Shape {
           'strokeColor': strokeColor.value,
           'fillColor': fillColor.value,
           'closed': closed,
+          'type2': ''
         }
       };
     }
@@ -116,12 +116,14 @@ abstract class Shape {
     }
 
     var objectMap = map['object'] as Map<String, dynamic>;
+
     var shape = ShapeDrawing()
       ..setPosition(
           Offset(objectMap['position']['dx'], objectMap['position']['dy']))
       ..setStrokeWidth(objectMap['strokeWidth'])
       ..setStrokeColor(Color(objectMap['strokeColor']))
       ..setFillColor(Color(objectMap['fillColor']))
+      ..setType(objectMap['type2'])
       ..setClosed(objectMap['closed']);
 
     if (objectMap['vertices'] != null) {
