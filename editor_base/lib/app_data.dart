@@ -285,7 +285,7 @@ class AppData with ChangeNotifier {
       shape.setAttributesFromOtherShape(newShape);
       shape.setStrokeColor(strokeColor);
       double strokeWidthConfig = shape.strokeWidth;
-      shapesList.add(shape);
+      shapesList.add(newShape);
       actionManager.register(ActionAddNewShape(this, shape));
 
       newShape = ShapeDrawing();
@@ -388,7 +388,7 @@ class AppData with ChangeNotifier {
             docSize.height.toString()), // Ajusta la altura del SVG
       ], [
         for (var shape in shapes)
-          if (shape is ShapeEllipsis)
+          if (shape.type == "elipse")
             XmlElement(XmlName('ellipse'), [
               XmlAttribute(XmlName('cx'),
                   '${shape.vertices[0].dx + shape.position.dx}'), // Posicion de inicio (x)
