@@ -285,7 +285,7 @@ class AppData with ChangeNotifier {
       shape.setAttributesFromOtherShape(newShape);
       shape.setStrokeColor(strokeColor);
       double strokeWidthConfig = shape.strokeWidth;
-      shapesList.add(newShape);
+      shapesList.add(shape);
       actionManager.register(ActionAddNewShape(this, shape));
 
       newShape = ShapeDrawing();

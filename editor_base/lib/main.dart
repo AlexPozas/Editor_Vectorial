@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:editor_base/app_data_actions.dart';
